@@ -1,0 +1,8 @@
+json
+requests
+lxml.html
+dnspython
+tldextract
+netaddr
+scapy
+unidecode

@@ -1,0 +1,20 @@
+First, install all python dependencies from requirements.txt
+
+Then, Follow these instructions to generate bank ips
+
+1) python bgp.py
+**This will generate a file called bank_as.json**
+
+2) Run bgp.py until you receive no more error warnings about daily limits being reached, take 24 hours between each run of this function
+   Warning message will be of the form "XXX/XXX ASN ranges processed. Daily limit has reached, please run script again in 24 hours"
+
+3) sudo python rdns.py bank_as.json
+**This will take a long time to run. It also requires sudo privileges for port scanning.
+This will generate a file called bank_as.json.dns**
+
+4) python subd.py bank_as.json.dns bank_domains &> bank_subdomains
+**bank_domains is the file of bank domain names that can be added to easily
+This will take a long time to run as well**
+
+5) python ip_gen.py bank_as.json.dns bank_subdomains &> bank_ips
+**This will not take a long time at all**
