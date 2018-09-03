@@ -1,0 +1,103 @@
+The Target of this document is to explain how to obtain the all banks WW for not enrouting this traffic via SQUID by an exception in iptables.
+Then the Banks traffic wont be bumped for security reasons. The requested list is and file with bankname bankcompletedomain   ip x.x.x.x    reversedns
+
+Implementation:
+******************
+Final Form:
+bankname bank SUBdomain      ipx.x.x.x (IPs)
+bankname reversedns          ipx.x.x.x (IPs or IP ranges)
+bankname NODOMAIN            ipx.x.x.x (IPs or IP ranges)
+
+If we want, we can filter on the bankname as that will be consistent
+
+
+Bank Names Domains (at the buton can find the list)
+
+BGP ASs Database (at the button can find whole the AS belonging to banks)
+http://bgp.he.net/AS61038#_prefixes
+wget http://bgp.he.net/ASNUMBER#_prefixes 
+parse all:
+<a href="/net/62.76.0.0/24">62.76.0.0/24</a>
+<a href="/net/xx.yyy.zzzz.kkkk/AA">62.76.0.0/24</a>
+Generate a document with all  http://magic-cookie.co.uk/iplist-cgi.txt
+Or scann al subnets with nmap quick -Pn save al llist ips in text file
+
+Reverse Domain Name Generator (check with all BGP IP blocks and generate all discovered reverse domains with respective IPs)
+- host all list of ip in the block
+- dig -x per ip in ip block
+- nslookup
+- shodan
+- http://www.dnspython.org/
+
+Sub-Domain Generator (check with all domains and generate all discovered subdmains with IPs)
+- https://github.com/guelfoweb/knock
+- https://github.com/aboul3la/Sublist3r
+- https://github.com/rbsec/dnscan
+- https://github.com/TheRook/subbrute
+- https://github.com/jhaddix/domain
+- https://github.com/tomsteele/blacksheepwall
+- https://code.google.com/archive/p/gxfr/
+- https://github.com/OJ/gobuster
+- https://bitbucket.org/LaNMaSteR53/recon-ng
+- http://tools.kali.org/information-gathering/dnsrecon
+- https://github.com/infosec-au/altdns
+- https://github.com/Cleveridge/cleveridge-subdomain-scanner
+
+IP Generator
+- dig, nslookup
+
+
+                 +---------------------+
+                 | Banks World Wide    +---------------------+
+                 +-----------+---------+                     |
+                             |                               v
+                             |
+                             |                        +-------------------+
+                             |                        | Domains           |
+                             |                        +-----------+-------+
+                             |                                    |
+                             v                                    |
+                                                                  |
+                  +--------------------+                          |
++---------------> |  BGP AS Database   |                          |
+|                 +------------+-------+                          |
+|                              |                                  |                  +-----------------------+      +---------------------+
+|                              |                                  +-------------->   |Subdomain Tools finders+----->|  IP Generator(DNS)  |
+|                              |                                                     +-----------------------+      +-------+-------------+
+|                              |                                                                                                     |
+|                              |                                                                  ^                                  |
+|                              |                                                                  |                                  |
+|                              v                                                                  |                                  |
+|                                                                                                 |                                  |
+|            +---------------------------------+                                                  |                                  |
+|            |                                 |                                                  |                                  |
+|            | Reverse Domain Generator (rDNS) +--------------------------------------------------+                                  |
+|            |                                 |                                                                                     |
+|            +---------------------------------+                                                                                     |
+|                                                                                                                                    |
+|                                                                                                                                    |
+|                                                                                                                                    |
+|                                                                                                                                    |
+|                                                                                                                                    |
+|                                                                                                                                    |
++---------------------------------------------------------------------------------------------------------------------------------------+
+                                                 Check IPs in BGP AS List to find unknown AS that contain Bank IP
+
+
+Bank Names Domains (in banks/bank_domains)
+-- https://www.thebankerdatabase.com/index.cfm/banks/all/?letter=A
+-- https://www.thebankerdatabase.com/index.cfm/banks/all/
+-- http://www.allbanks.org/main/list/0.html
+-- http://pugahome.tripod.com/allbanks.htm
+BGP AS Database (generated by banks/bgp.py)
+- http://www.bgplookingglass.com/list-of-autonomous-system-numbers
+- http://www.bgplookingglass.com/list-of-autonomous-system-numbers-2
+- https://github.com/CIRCL/bgp-ranking/search?utf8=%E2%9C%93&q=bgp
+- https://github.com/CIRCL/bgp-ranking/search?utf8=%E2%9C%93&q=%22autonomous+system%22
+Domain Generator (NOT REQUIRED!)
+- Google 
+- http://openaccess.dialog.com/ip/
+- http://www.ldap.verisignlabs.com/
+- http://www.yougetsignal.com/tools/web-sites-on-web-server/
+-- http://www.yougetsignal.com/list-of-domain-names/
+- https://www.robtex.com/
