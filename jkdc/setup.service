@@ -1,0 +1,8 @@
+[Unit]
+After=mysql.service
+
+[Service]
+ExecStart=/root/app-configuration-script.sh
+
+[Install]
+WantedBy=default.target
