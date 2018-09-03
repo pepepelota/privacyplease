@@ -1,0 +1,38 @@
+1. Instalar de alguna forma rsync o por repositorio en la debian librerouter
+   wget --no-check-certificate https://github.com/Librerouter/Librekernel/raw/gh-pages/rsync 
+   cp rsync /usr/bin/.
+   chmod u+x /usr/bin/rsync
+
+2. Crear fichero /tmp/id_rsa y /tmp/id_rsa.pub con los contenidos debidos
+echo -n "-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEAwiB3tZGEgUiupbEmpvJlIjGl0lM49bCOIgeQb+goK/C+/3V1
+vEkEPBd51e5J5q2xpvrqNi3Ly1sY5kxxMo/W4ZaOaBhdJnkfYgatNh43LRyR4e6q
+kMgAMuvztqjBGunI+9M952XWkZ0xiGWgODtM42qDZR4KYNd/YKunWGuzng0mjDZh
+Ybz5DyxC64LEPJRkGzrexeQfShyn9gtbeXrHcPPGUI8VCSgre9aDCppqsbVGjxvK
+5WDO2OiuPv3rCNG6bVMW2NdrEuLLroYIctu9pU01awAiePvwtnskWpXG2IMfPyrg
+5hBPA1vJifyjMVMHEHE2Q9noxmjDr2KlCtp2XwIBIwKCAQEAvJSRi88wQxNn1Chu
+sM42W7szXpn80WmupLbkFPAnBh0RT+5yXyJb4pp2Wso5KTsEWREAxuqoturHuyWv
+yrediq+DBgkKCB3j+NNJLUHsdPcuoPZ5znkkw8Cjm39cgItVhup2pkWr3ekozaSN
+A2zOWULmCnT0I4+DDXOMnwmJ6fxysHUSiBAoiR7B8o9jx4pqRNeN9mEWDGZ8H7hW
+wDwL/Wi/p4cBL/WOOx8gX1ogRdbP5CjQiJCukbFJLjmA/xh+W6TznsQezGGfVH3X
+1HcLU8FrZQy1VLTqRGShlgfWN8Wt2p28rr1P8RlbtgYPydA/VwbX85g+KjU4UKS8
+vqSm2wKBgQDzMzMJTNHMMraP18MB49DJS6ufCOhzjesarhY3VH86NmWkWdp0r52X
+wC4wLilAyTpC2ZXwfTPp/WdScmt/v2xWvVR7LlEC+XkcUJ/Rv7h/YoQfWDC1lckC
+zeW9vigCmZVzrJAzqYFn+NmkVq5hySfq3KVNKB/nDucCekoADlcB+wKBgQDMWBJb
+l+mZuLfrbODbofFal8Bp1fIVCcgNgahSXxgXeXUgb+Xi5Ggm90SEXCr5oJZa4T24
+ci6LgcNUOxr9FZ7/uxEKStqiv32pd90j0OTu1fpy0G+FDAA4/Igpryl2yUfS9VKn
+PWKcRwYorKJeVKePtJAo7ELu5mkWS34e7PgT7QKBgQDeWrJRpVIZx/de8SdSL1/N
+/AqgCCT773fd4P5eeSPdc5AhPDVx/6YHFhuZw83yFxCyJgVuKVQJIjKUhd6grwP3
+iIfBFGdTLTuHmiu4dMXwzxm2QgCmBUoRMUcT4Q6jSpdFMA7QJfKoM/ov2jkI8m2j
+h+eXAB0rBk+NPJttw/fHSwKBgQCGSIEXnleuKO3j2dWXpO8PpY0SWWSRe3TVrPmV
+Ny0WvYd7tz9L9S6AAZNs7Bw9pAsIhWMSzrDfVUXYRBkMtm/Mn4A59qzumxgQR3QQ
+OND0uIACTnUri4seIkrZkF0Ti5WZQiBfRZiSlRKtA7soC76RooqejKEDZDZtvJS1
+PKMFxwKBgQCrUMipqE7+sTi0TBND2q7989EncE1OXyTf9wQFpkN9yQ293E1hLVGp
+gAnO13qkWx3yUe8qUk5hIpWdhbq2qH3C1rsmazyD6TDRrJXz7bw3ZBv32huLaQz+
+seQwGVr1j8OHnAgiQ77DefpStjuD6xts4fiLiYWKfki7olT4kbSltw==
+-----END RSA PRIVATE KEY-----" > /tmp/id_rsa
+
+chmod go-rwx /tmp/id_rsa
+
+3. ejecutar rsync ..... -e "ssh -i /tmp/id_rsa -l reporter -o StrictHostKeyChecking=no" origen murtaza.hispalis.net:/home/reporter/.
+
