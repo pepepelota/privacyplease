@@ -1,0 +1,70 @@
+From 508714a599982b11a22180c17cd7ca4ec4193873 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Bernhard=20=C3=9Cbelacker?= <bernhardu@vr-web.de>
+Date: Mon, 14 Mar 2016 14:59:55 +0100
+Subject: Input: goodix - add changes to support PIPO X8.
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Bernhard Übelacker <bernhardu@vr-web.de>
+---
+ drivers/input/touchscreen/goodix.c | 28 ++++++++++++++++++++++++++--
+ 1 file changed, 26 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 240b16f..c5377e1 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -107,6 +107,22 @@ static const struct dmi_system_id rotated_screen[] = {
+ 	{}
+ };
+ 
++/*
++ * This is for the device PIPO X8
++ */
++static const struct dmi_system_id pipo_x8_screen[] = {
++#if defined(CONFIG_DMI) && defined(CONFIG_X86)
++	{
++		.ident = "PIPO X8",
++		.matches = {
++			DMI_MATCH(DMI_BIOS_VERSION, "X8"),
++			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB")
++		}
++	},
++#endif
++	{}
++};
++
+ /**
+  * goodix_i2c_read - read data from a register of the i2c slave device.
+  *
+@@ -235,9 +251,9 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
+ 
+ 	/* Inversions have to happen before axis swapping */
+ 	if (ts->inverted_x)
+-		input_x = ts->abs_x_max - input_x;
++		input_x = (ts->swapped_x_y == false ? ts->abs_x_max : ts->abs_y_max) - input_x;
+ 	if (ts->inverted_y)
+-		input_y = ts->abs_y_max - input_y;
++		input_y = (ts->swapped_x_y == false ? ts->abs_y_max : ts->abs_x_max) - input_y;
+ 	if (ts->swapped_x_y)
+ 		swap(input_x, input_y);
+ 
+@@ -521,6 +537,14 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+ 		dev_dbg(&ts->client->dev,
+ 			 "Applying '180 degrees rotated screen' quirk\n");
+ 	}
++
++	if (dmi_check_system(pipo_x8_screen)) {
++		ts->inverted_x = true;
++		ts->swapped_x_y = true;
++		swap(ts->abs_x_max, ts->abs_y_max);
++		dev_err(&ts->client->dev,
++			 "Applying 'PIPO X8' quirk\n");
++	}
+ }
+ 
+ /**
+-- 
+2.1.4
+
