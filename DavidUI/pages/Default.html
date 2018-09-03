@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Default</title>
+    <link href='../css/style.css' rel='stylesheet' type='text/css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/script.js"></script>
+</head>
+<body>
+<div>
+    <div>
+        <img src="../img/pic1.jpg" height="100px" style="margin: 0">
+    </div>
+    <h1 class="toph1">LibreRouter</h1>
+</div>
+
+<hr class="hr1">
+<hr class="hr2">
+<div class="div1">
+    <div class="leftDiv">
+        <nav class="main-nav">
+            <ul class="main-nav-ul">
+                <li>
+                    <a onclick="MyFunction('Home.html')" href="#">
+                        Home
+                    </a>
+                </li>
+
+                <li>
+                    <a onclick="MyFunction('Blocking.html')" href="#">
+                        Blocking
+                    </a>
+                </li>
+
+                <li>
+                    <a class="subMenu" href="#">
+                        Services<span class="sub-arrow"></span>
+                    </a>
+                    <ul class="current">
+                        <li>
+                            <a onclick="MyFunction('services/Daemons.html')" href="#">
+                                Daemons
+                            </a>
+                        </li>
+                        <li>
+                            <a onclick="MyFunction('services/Tor_Hidden_Services.html')" href="#">
+                                Tor Hidden Services
+                            </a>
+                        </li>
+                        <li>
+                            <a onclick="MyFunction('services/I2p_Hidden_Services.html')" href="#">
+                                I2p Hidden Services
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a onclick="MyFunction('LocalServices.html')" href="#">
+                        Local Services
+                    </a>
+                </li>
+
+                <li><a href="#" class="subMenu">
+                    System Tools<span class="sub-arrow"></span>
+                </a>
+                    <ul class="current">
+                        <li><a href="#">Time</a>
+                        <li><a href="#">Diagnostic</a>
+                        <li><a href="#">Factory Defaults</a>
+                        <li><a href="#">Backup & Restore</a>
+                        <li><a onclick="MyFunction('system_tools/Reboot.html')" href="#">
+                            Reboot
+                        </a>
+                        <li><a href="#">Password</a>
+                        <li><a href="#">Syslog</a>
+                        <li><a href="#">Statistics</a>
+                    </ul>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+
+    <iframe src="Home.html" id="homePage" scrolling="no" width="100%" height="700px" frameborder="0">
+
+    </iframe>
+
+
+</div>
+</body>
+</html>
