@@ -1,0 +1,196 @@
+This document describes how-to implement hosted LibreRouter services.
+
+BASIS
+
+a. The LibreRouter box is a Virtual Machine, full configured. Each client will use his own LibreRouter VM
+b. Is possible some services be provided from common servers in the grid, that means is not required to 
+   run "banks" on each VM, or as example fail2ban can place rules on the globla grid from each VM detected
+   or suspected attack
+c. The enduser computer is connected through VPN. We can use one OpenVPN global server or place one OpenVPN
+   server on each LibreRouter VM
+d. The traffic commin on VPN IP and PORT is routed to the 10.0.0.1 ( as default gw ), in a way all traffic
+   comming from enuser through the tunnel is routed to the Librerouter ports
+e. Special case traffic routed from enduser tunnel to the Host ( this is the host of all VPN that is 
+   NOT routed but FORWARDED to the host ) and provide services like KVM ( and probably other services )
+   to the enduser to allow to log into his VM console ( graphical or text )
+
+THE ARCHITECTURE
+
+THE HOST
+
+a. Host. Proxmox v>3.17 . Preferable 4.1.0 
+b. VM Master ( is just to clone many VM ) 
+c. Full VM ( does not requires modifications, but each VM must use private network segment, that means
+   no all must have same 10.0.0.1 net
+d. KVM functions. Are builded on top the Host machine.
+   Once bulded the $vmid machine ( or cloned from VM Master ) we start the VM auto and run:
+   
+   echo '{"execute":"qmp_capabilities" }{"execute":"change", "arguments":{"device": "vnc", "target":"0.0.0.0:3149,password"}}
+{"execute":"change-vnc-password", "arguments":{"password": "$password" }}' | socat - UNIX-CONNECT:/var/run/qemu-server/$vmid.qmp
+
+   This will cause our VM offers KVM access on port (5900+3149) for VNC connections.
+
+
+THE OPENVPN SERVER
+a. Of course first mission is to offer VPN to client, with key pairs identification.
+b. Other CRITIAL missions are:
+   1. Route traffic from each tun to each Librerouter VM
+      ...
+      ip rule add from 192.168.1.11 table lb1
+      ip rule add from 10.0.0.101 table lb1
+      ...
+
+      and then 
+      /etc/iproute2/rt_tables will be populated with these paths
+      ...
+      101 lb1
+      102 lb2
+      ...
+c. Must also REDIRECT for KVM services on each $HOST_IP:$seleccte_port
+   REDIRECT KVM is done with iptables
+
+d. Additional checks can be applied, as the authentication is pure ssh key pairs, this not save
+   the enduser can move box to box his credentials. 
+   To avoid this once the VPN is offered and BEFORE the routing and forwarding rules are applied
+   other checks must be passed. ( i.e. enduser Hard Drive ID, CPU ID, Kernel parameters , etc )
+
+e. The VPNServer does not requires to run DHCPD, as all configuration and IP mapping is done
+   in the openVPN configuration files
+
+f. The VPNServer will run TWO instances of openvpn Server, one for UDP and one for TCP on port 443
+   to save those cases where UDP is not allowed of sctrict filterings are in the client side.
+
+   root      1016  0.0  1.0  27284 10100 ?        Ss   Jan07   3:41 openvpn /etc/openvpn/openvpn.conf
+   root      1026  0.0  0.4  21096  4728 ?        Ss   Jan07   1:58 openvpn /etc/openvpn/openvpn_udp.conf
+
+
+   For VPNServer TCP:
+   remote vpn.zonnox.com
+   proto tcp 
+   port 443
+
+   For VPNServer UDP ( default ):
+   proto udp
+   port 1194
+
+   UDP will offer better perfomance, but we can face some clients are not able to use this traffic due
+   his networking rules, and then we need to offer TCP:443 as alternative.
+
+
+THE ENDUSER SIDE
+
+   There little tasks than must be done in the enduser side.
+   First of all install ( if not already ) the openvpn software
+   Use configuration as default
+   Copy the provided certificate file to /etc/openvpn/certs/. and
+   copy the provided key file to /etc/openvpn/keys/.
+   Place the openvpn server name or IP in the /etc/openvpn/openvpn.conf
+   Start openvpn
+
+   Now a new interface with a new IP must be there, called "tun0" or similar.
+
+   Finally he need to modify his routing table in a way:
+   Traffic to openvpn server name or IP must be routed through his normal internet port ( eth0, wlan0, etc )
+   Rest of traffic ( 0.0.0.0/0 ) must be routed to VPN other leg IP ( usually this is the same IP for everybody
+   in example if you got VPN tun0 IP 10.20.20.21/16 your gateway here must be 10.20.0.1 )
+
+HOW TO GENERATE PAIRS FOR NEW CLIENTS ?
+
+   Server side :
+   $enuser_alias="JohnSmitch"
+   easyrsa build-client-full $enuser_alias nopass
+   cp /home/joaquin/pki/private/$enuser_alias.key /etc/openvpn/keys/.
+   cp /home/joaquin/pki/issued/$enuser_alias.crt /etc/openvpn/certs/.
+
+   For client side: 
+   Send to client ( enduser ) the two files and tell him to copy in his local machine.
+
+
+NETWORK RESOURCES REQUIREMENTS
+
+   Each Librerouter VM must have a valid public IP ( is possible to nat, but big risk to get IP blocked
+   if some users does bad things and also for banks and other similar services can cause lot of problems )
+
+   Each Librerouter VM must have a private subnet, i.e. 10.0.0.0/24, 10.0.1.0/24 .... 10.254.255.0/24
+
+SPACE REQUIREMENTS
+
+   Each Librerouter VM must have enough space, also to share with Tahoe grid, recommended 1 TB total space
+   My test VM machines have been donde with just 32GB total hard disk.
+
+RDNS for SMTP
+   
+   As each Librerouter VM has one public IP is possible to use this one to send/receive MTA connections
+   and assign a RDSN name to this IP
+
+COMMON SERVICES
+
+   Banks, dns and other services mus be placed out of each LibreRouter VM to save resources, in a way to reach
+   the maximum possible Librerouter boxes with the minimal hardware.
+   These common servers for all the service can also be VM on the same host
+
+CASE STUDY:
+
+   FULL OPTION:
+
+   Endusers: 500
+   Common services (to save CPU,space,RAM ) : 
+   Librerouter VM's 500
+   OpenVPN Servers VM : 2
+   Base Disk Space: 400GB 
+   User space Disk: 500 x 500GB  = 250TB (SATA3 Low Performance)
+   Internet bandwidth: 1Gbps simetric
+   IP Pool: 2 C class ( 512 ip's )
+   Power supply: 3x 1700W units
+   Host S.O. Proxmox ( Debian based ) 
+   CPU Cores: minimal 24
+   Interconection 2x 10Gbps SFP ports
+   RAM ballom : (512M-2G) * 500 at 50%load =~ 496GBRAM
+
+   OPTIMAL: 
+   Endusers: 500
+   Common services (to save CPU,space,RAM ) :
+   Librerouter VM's 500
+   OpenVPN Servers VM : 2
+   Base Disk Space: 400GB
+   User space Disk: 4x8TB  = 32/16TB RAID-1 (SATA3 Low Performance)
+   Internet bandwidth: 1Gbps simetric
+   IP Pool: 2 C class ( 512 ip's )
+   Power supply: 2x 1700W units
+   Host S.O. Proxmox ( Debian based )
+   CPU Cores: minimal 12
+   RAM ballom : (512M-2G) 256GBRAM
+
+   MINIMAL:
+   Endusers: 50
+   Common services (to save CPU,space,RAM ) :
+   Librerouter VM's 50
+   OpenVPN Servers VM : 2
+   Base Disk Space: 400GB
+   User space Disk: 4x4TB  = 16/8TB RAID-1 (SATA3 Low Performance)
+   Internet bandwidth: 100Mbps simetric
+   IP Pool: 2 C class ( 512 ip's )
+   Power supply: 2x 1700W units
+   Host S.O. Proxmox ( Debian based )
+   CPU Cores: minimal 12
+   RAM ballom : (512M-2G) 128GBRAM
+
+
+
+NOTA: Azure Microsoft tiene un costo de 8.5E/mes/TB por almacenamiento, mas costos añadidos por operaciones 
+      y transferencias. Los costos para almacenamiento por cliente de hasta 1TB de espacio deben ser tarificados
+      y parametrizados aparte.
+   
+
+FINANCIALS ( OPTIMAL )
+   POI: 18,000 Euros
+   ROI:  <2 meses 
+   Cargos recursivos: 2800 Euro/mes
+   Incoming: ( at 20E/client 10,000 E/mes )
+   Out: 2800 E/mes
+   GM: 7200 E/mes
+
+COMMERCIAL:
+   The 20E/mo includes private VPN + Public IP + All services offered by Librerouter with 32GB HD VM's
+
+

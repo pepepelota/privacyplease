@@ -1,0 +1,60 @@
+tahoe v1.12.1 still not working over I2P due to TLS handshake failure. This causes both sides thinks they are the client side, then fails
+              this is an older issue, no well documented.
+              WARNER is working on it.
+
+SSHFS/SFTP    On mounted points caps are not always good passed, failing in creating inmutable files that are bigger than 55 bytes size.
+              A workaround is to patch /inmutable/upload.py 
+              patching=$(sed -e "s/URI_LIT_SIZE_THRESHOLD = 55/URI_LIT_SIZE_THRESHOLD = 55555/g" upload.py > /tmp/upload.py.patched)
+              mv /tmp/upload.py.patched /home/tahoe-lafs/venv/lib/python2.7/site-packages/allmydata/immutable/upload.py
+              cd /home/tahoe-lafs/venv/lib/python2.7/site-packages/allmydata/immutable
+              python -m py_compile upload.py
+
+              Restarting the node sometimes fix it.
+
+              Metadata are also wrong. No patch available yet
+
+TOR           At some time of the day, noticeable spain afternoons, Tahoe comes failing a lot, uncompleted simple tasks as just tahoe ls -l and so on,
+              and unabe to complete some updates ( backing to the grid or restoring from grid )
+              Tor traffic comes really VERY litle ( whatched with tcpdump ) on port 9001 , not enough to support the Tahoe service.
+              This MAY be much related with SSHFS/SFTP failures on mutable/inmutable files due to timeouts inside the sshfs server.
+              Yesterday seems like a bug on Tahoe/SSHFS discovered at around 16:00 localtime, and still there until 04:00 localtime, then the issues
+              seems gone away.
+              This morning the issue seems fixed and everything worked fine, but after 18:00 localtime the problem is back.
+              I guess is much related with Tor performance at some time of the day
+      
+              Piece of tor/log:
+              BOX 1: 
+              Feb 02 19:25:00.000 [warn] Fetching v2 rendezvous descriptor failed. Retrying at another directory.
+              Feb 02 19:25:00.000 [notice] Closing stream for '[scrubbed].onion': hidden service is unavailable (try again later).
+              Feb 02 19:27:30.000 [notice] Tried for 120 seconds to get a connection to [scrubbed]:3457. Giving up. (waiting for rendezvous desc)
+              Feb 02 19:29:20.000 [notice] Closing stream for '[scrubbed].onion': hidden service is unavailable (try again later).
+              Feb 02 19:30:31.000 [notice] Closing stream for '[scrubbed].onion': hidden service is unavailable (try again later).
+              Feb 02 19:31:37.000 [notice] Closing stream for '[scrubbed].onion': hidden service is unavailable (try again later).
+              Feb 02 19:33:47.000 [notice] Closing stream for '[scrubbed].onion': hidden service is unavailable (try again later).
+              Feb 02 19:34:44.000 [notice] Tried for 120 seconds to get a connection to [scrubbed]:3457. Giving up. (waiting for rendezvous desc)
+
+              BOX 2:
+              Feb 02 19:15:37.000 [warn] Couldn't find any service associated with pk 2y7oymd4nfiykvnv on rendezvous circuit 3102005908; closing.
+              Feb 02 19:15:37.000 [warn] connection_edge_process_relay_cell (at origin) failed.
+              Feb 02 19:15:42.000 [warn] Fetching v2 rendezvous descriptor failed. Retrying at another directory.
+              Feb 02 19:15:42.000 [warn] Fetching v2 rendezvous descriptor failed. Retrying at another directory.
+              Feb 02 19:15:43.000 [warn] Couldn't find any service associated with pk 4nx7bejdyeab6bhz on rendezvous circuit 3107880321; closing.
+              Feb 02 19:15:43.000 [warn] connection_edge_process_relay_cell (at origin) failed.
+              Feb 02 19:15:44.000 [warn] Fetching v2 rendezvous descriptor failed. Retrying at another directory.
+              Feb 02 19:15:44.000 [warn] Fetching v2 rendezvous descriptor failed. Retrying at another directory.
+              Feb 02 19:15:46.000 [warn] Fetching v2 rendezvous descriptor failed. Retrying at another directory.
+              Feb 02 19:15:46.000 [warn] Fetching v2 rendezvous descriptor failed. Retrying at another directory.
+              
+              More info:
+              https://trac.torproject.org/projects/tor/ticket/488
+              http://tor.stackexchange.com/questions/1263/tried-for-120-seconds-to-get-a-connection-to-scrubbed6667-waiting-for-contro
+              https://torstatus.blutmagie.de/
+              https://torstatus.blutmagie.de/router_detail.php?FP=ade45da3a6d318feb07e2e099bcccfea8adac8dc
+              
+              
+              UPDATES
+If node_1 is using i.e. just 1 server ( see tahoe status Per-Server Fetch Response Times) where was backed some files, the retrieving tehse files from just one server would take very long time ( over 1 minute )
+May be we need to ensure how much servers are connected BEFORE start backing
+Tested. Using more nodes (3) fix the issue. Then we need to run on at least 3 nodes BEFORE to create ANY file in the grid, otherwise even if we change tahoe.cfg k/H/N and restart node, is NOT updated and still using previous K value.
+
+

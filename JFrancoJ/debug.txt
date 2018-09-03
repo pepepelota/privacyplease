@@ -1,0 +1,50 @@
+Debug and monitor project.
+
+The purpose is to show in real-time and text console the status of different events and system values , traccing traffic on each interface and service
+and give an idea about what the system does once a request is sent or received from the net.
+
+There several things to monitorize, on different OSI layers.
+
+In resume will be:
+
+Hardware:
+Check CPU load, temperature
+Check RAM utilization
+Check IO blocks and delays
+
+Networking:
+Check for input/output on each service. This is done listening on each interface and port
+
+Filesystem:
+Check for what file have been acceded and/or change.
+Check all log files for each engine.
+
+The Console:
+
+This must be pure ASCII, for that we will draw a layout for the active text resolution ( i.e. 240x65 characters ).
+The discovering of GFX and placing each text or figures in the screen will be done using "tputs".
+We are going to avoid changing screen or kernel graphics ( like SVGATextmode and other utilities, due this can destroy our desktop )
+
+There a fixed part for naming, i.e. for "CPU temp1" or "Postfix incoming" texts, followed by a fixed length ( in characters ) value, that is
+collected by the daemon and updated to console again using "tputs"
+
+As probably 240x65 character console is not enough to show all requiered info, some shortkeys to swap to next layout monitor will be provided.
+
+The console will have top with hardware parameters, middle with Networking and bottom part with filesystem changes and access.
+
+The Daemon:
+
+This is not a simple daemon.
+This will use :
+
+  free - For RAM utilization
+  cpu  - For CPU utilization
+  snmpd - For network monitorization and others
+  vmstat - For blocks monitorization
+  dmesg  - For errors
+  find   - For filesystem watching changes or access
+
+Each part of daemon will write to a file a pipe his output, that is collected by the main daemon and refresh onto the console.
+
+ 
+
