@@ -4,66 +4,37 @@
 
 You need a clusters of debloabed ARM boards.
 
-# Setting up the lab in Virtual:
+# Setting up boards:
 
-ESXi,VirtualBox,other vitrual lab:
+Built a cluster of for example LIME2 oluxinos.
+Add additional USB to ethernet interfaces.
+Connect between then in cascade.
 
-- Internet Router<-----eth0----Debian64 latest version----eth1---Virtual Lan vswitch<---ethernet---Windows10
-- Internet DHCP server--eth0---Debian64 latest version-----eth1--(debian dhcpserver)--------Win10 (dhcp client)
+ARM-BOARD-WITH-DEBIAN-1
+        ├ETH0-ethernet in the board-------------------------Internet Router with UPNP enabled
+	├ETH1-new usb to ethernet--------------NEXT ARM BOARD ETH0
+	
+ONION ARM BOARD CLUSTER
 
-First of all you should install latest Debian 64bit version in a virtual machine (why Virtual? you can recover fresh install in seconds doing restoration of snapshot):
-
-- 2GB RAM, 2 core procesors, 2NICs (network interfaces)
-
-Second a non privacy friendly OS like Win 10:
-- VM requirements in microsoft
-- Office 2016
-- All possible browsers.dropbox client, seamonkey,firefox,chrome,edge,iexplorer,opera,chromiun.
-
-Hardware resources:
-
-- NIC1 will be NAT/bridged to your Internet dhcp server router.
-- NIC2 will be a attached  via virtual switch or vlan to the other VM Windows10. 
-
-From debian to win 10 will be a private LAN in bridge mode. (would require promiscous because arp request from client to server)
-
-You can use any virtualization software you prefer. 
-
-As shown in the following figure.
-
-![deded](https://github.com/Librerouter/Librekernel/blob/gh-pages/images/21.png)
-
-Resume of steps, please be aware that debian should be simplest or non packages should be selected.
-
-- In Virtualbox in debian like: https://jtreminio.com/2012/07/setting-up-a-debian-vm-step-by-step/
-- Or any physical machine like https://www.debian.org/doc/manuals/debian-handbook/sect.installation-steps.ru.html
-- In the Debian please do a Snapshot in the Virtual machine just after being install.
-
-
+INTERNET--BOARD1--BOARD2---BOARD3---BOARD-AP---Clients Wireless access point in Bridge mode.
+          Filter  Filter   Filter   WLAN AP                     
+           FW      TOR      I2p        ├BOARD4-Services-Security-Control 
+          NOO-OUT		       ├BOARD5-Services1
+				       ├BOARD6-Services2
+				       ├BOARDx-ServicesX
+				       
 Important note before testing : 
 
 - Do NOT try to install the scripts via a ssh session. The scripts FAIL if you do that, due to problems with ethernet connection.
 - Install the scripts via direct console access.
 
-Go shell command console in debian and execute as root:
+Go shell in Lime2 ARM board number 1:
 
-(Choose the wget o curl command that you prefer)
-- wget -O - http://bit.ly/2gbKstn | bash
-
-
-or
-
-- wget --no-check-certificate https://raw.githubusercontent.com/Librerouter/Librekernel/gh-pages/setup.sh  
-- chmod 777 setup.sh
-- ./setup.sh
-
-or
-
-- apt-get install curl
-- curl -L http://bit.ly/2gbKstn | bash
-
-
-log files are in /var
+- wget --no-check-certificate https://raw.githubusercontent.com/Librerouter/Librekernel/gh-pages/setupboard1.sh  
+- chmod 777 setup-board1.sh
+- ./setup-board1.sh
+ 
+log files created for diagnosis proposes are in /var
 
 - apt-get-install-aptth.log
 - apt-get-update.log
