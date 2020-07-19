@@ -2,25 +2,7 @@
 
 # Setting up the lab in physical:
 
-Suported devices :
-
-- 100% open source open Hardware Solidrun Clearfog.
-
-
-
-Mini servers:
-- Gole1
-- Qotom X8,x9s,x10
-- Pipo x10 and modified.
-
-Any Laptop, PC or server
-
-Tablets:
-- Chwi Hi10 or Chwi hi12
-- Onda V919 Air CH
-- Teclast X89
-
-You need to add a usb to ethernet adaptor or a second ethernet nic and 2 atheros (non firmaware required) wireless network interfaces.
+You need a clusters of debloabed ARM boards.
 
 # Setting up the lab in Virtual:
 
