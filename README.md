@@ -1,5 +1,3 @@
-![librerouter - logo](https://cloud.githubusercontent.com/assets/13025157/14472862/85e49ae0-00f5-11e6-9591-163f1acd5098.png)
-
 # Setting up the lab in physical:
 
 You need a clusters of debloabed ARM boards.
